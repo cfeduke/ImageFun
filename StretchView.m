@@ -28,11 +28,13 @@
 		[path lineToPoint:p];
 	}
 	[path closePath];
+	opacity = 1.0;
 	return self;
 }
 
 - (void)dealloc {
 	[path release];
+	[image dealloc];
 	[super dealloc];
 }
 
@@ -43,6 +45,17 @@
 	
 	[[NSColor whiteColor] set];
 	[path fill];
+	
+	if (image) {
+		NSRect imageRect;
+		imageRect.origin = NSZeroPoint;
+		imageRect.size = [image size];
+		NSRect drawingRect = imageRect;
+		[image drawInRect:drawingRect
+				 fromRect:imageRect
+				operation:NSCompositeSourceOver
+				 fraction:opacity];
+	}
 }
 
 - (NSPoint)randomPoint {
@@ -66,4 +79,20 @@
 	NSLog(@"mouseUp:");
 }
 
+#pragma mark Accessors
+-(void)setImage:(NSImage*)newImage {
+	[newImage retain];
+	[image release];
+	image = newImage;
+	[self setNeedsDisplay:YES];
+}
+
+-(float)opacity {
+	return opacity;
+}
+
+-(void)setOpacity:(float)x {
+	opacity = x;
+	[self setNeedsDisplay:YES];
+}
 @end
